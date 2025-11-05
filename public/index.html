@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bitcoin Mining Tracker</title>
+    <link rel="stylesheet" href="styles.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>₿</text></svg>">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>₿ Bitcoin Mining Tracker</h1>
+            <p class="subtitle">Real-time Bitcoin mining statistics and remaining supply tracking</p>
+        </header>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p>Loading Bitcoin data...</p>
+        </div>
+
+        <main id="mainContent" style="display: none;">
+            <!-- Key Statistics Cards -->
+            <section class="stats-grid">
+                <div class="stat-card primary">
+                    <div class="stat-icon">⛏️</div>
+                    <div class="stat-content">
+                        <h3>Bitcoin Mined Today</h3>
+                        <div class="stat-value" id="bitcoinToday">0</div>
+                        <div class="stat-unit">BTC</div>
+                    </div>
+                </div>
+
+                <div class="stat-card secondary">
+                    <div class="stat-icon">🏦</div>
+                    <div class="stat-content">
+                        <h3>Total Bitcoin in Circulation</h3>
+                        <div class="stat-value" id="totalCirculation">0</div>
+                        <div class="stat-unit">BTC</div>
+                    </div>
+                </div>
+
+                <div class="stat-card tertiary">
+                    <div class="stat-icon">⏳</div>
+                    <div class="stat-content">
+                        <h3>Bitcoin Remaining</h3>
+                        <div class="stat-value" id="bitcoinRemaining">0</div>
+                        <div class="stat-unit">BTC</div>
+                    </div>
+                </div>
+
+                <div class="stat-card quaternary">
+                    <div class="stat-icon">📊</div>
+                    <div class="stat-content">
+                        <h3>Mining Progress</h3>
+                        <div class="stat-value" id="progressPercentage">0</div>
+                        <div class="stat-unit">%</div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Progress Bar -->
+            <section class="progress-section">
+                <h2>Bitcoin Supply Progress</h2>
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar"></div>
+                    </div>
+                    <div class="progress-labels">
+                        <span>0 BTC</span>
+                        <span>21,000,000 BTC</span>
+                    </div>
+                </div>
+                <p class="progress-text">
+                    <span id="progressText">Loading...</span>
+                </p>
+            </section>
+
+            <!-- Charts Section -->
+            <section class="charts-section">
+                <div class="chart-container">
+                    <h2>Daily Mining Statistics</h2>
+                    <canvas id="dailyChart"></canvas>
+                </div>
+            </section>
+
+            <!-- Detailed Information -->
+            <section class="details-section">
+                <div class="details-grid">
+                    <div class="detail-card">
+                        <h3>📈 Current Mining Stats</h3>
+                        <div class="detail-item">
+                            <span>Current Block Height:</span>
+                            <span id="blockHeight">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Block Reward:</span>
+                            <span id="blockReward">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Blocks Mined Today:</span>
+                            <span id="blocksToday">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Average Block Time:</span>
+                            <span id="avgBlockTime">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>🔮 Halving Information</h3>
+                        <div class="detail-item">
+                            <span>Next Halving Block:</span>
+                            <span id="nextHalvingBlock">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Blocks Until Halving:</span>
+                            <span id="blocksUntilHalving">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Days Until Halving:</span>
+                            <span id="daysUntilHalving">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Estimated Halving Date:</span>
+                            <span id="halvingDate">-</span>
+                        </div>
+                    </div>
+
+                    <div class="detail-card">
+                        <h3>⏱️ Timeline Estimates</h3>
+                        <div class="detail-item">
+                            <span>Est. Completion Date:</span>
+                            <span id="completionDate">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Days to Completion:</span>
+                            <span id="daysToCompletion">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Network Difficulty:</span>
+                            <span id="difficulty">-</span>
+                        </div>
+                        <div class="detail-item">
+                            <span>Last Updated:</span>
+                            <span id="lastUpdated">-</span>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Data provided by blockchain.info API | Updates every 5 minutes</p>
+            <p>Built for educational purposes | <a href="https://github.com/jwehlen-cell/BitcoinTracker" target="_blank">View Source</a></p>
+        </footer>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>

@@ -1,0 +1,29 @@
+# Environment-specific configuration for AWS deployment
+
+# Development Environment
+development:
+  region: us-east-1
+  cluster_name: bitcoin-tracker-dev
+  service_name: bitcoin-tracker-dev-service
+  desired_count: 1
+  cpu: 256
+  memory: 512
+
+# Production Environment  
+production:
+  region: us-east-1
+  cluster_name: bitcoin-tracker-prod
+  service_name: bitcoin-tracker-prod-service
+  desired_count: 2
+  cpu: 512
+  memory: 1024
+  
+# Environment Variables for different stages
+env_vars:
+  development:
+    NODE_ENV: development
+    LOG_LEVEL: debug
+  
+  production:
+    NODE_ENV: production
+    LOG_LEVEL: info
