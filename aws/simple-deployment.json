@@ -1,0 +1,115 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Bitcoin Mining Tracker - Simple working deployment",
+  "Parameters": {
+    "VpcId": {
+      "Type": "String",
+      "Default": "vpc-0514bd5157e1880ff"
+    },
+    "SubnetId": {
+      "Type": "String", 
+      "Default": "subnet-00fda05771f13b609"
+    }
+  },
+  "Resources": {
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupName": "bitcoin-tracker-simple-sg",
+        "GroupDescription": "Security group for Bitcoin Tracker Simple",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "EC2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-0c02fb55956c7d316",
+        "InstanceType": "t3.micro",
+        "SubnetId": {
+          "Ref": "SubnetId"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroup"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "yum update -y\n",
+                "yum install -y httpd\n",
+                "systemctl start httpd\n",
+                "systemctl enable httpd\n",
+                "cat > /var/www/html/index.html << 'EOF'\n",
+                "<!DOCTYPE html>\n",
+                "<html>\n",
+                "<head>\n",
+                "    <title>Bitcoin Mining Tracker - Deploying</title>\n",
+                "    <style>\n",
+                "        body { font-family: Arial, sans-serif; text-align: center; padding: 50px; background: #0f1419; color: white; }\n",
+                "        .container { max-width: 600px; margin: 0 auto; }\n",
+                "        h1 { color: #f7931a; }\n",
+                "        .status { background: #1a1f2e; padding: 20px; border-radius: 10px; margin: 20px 0; }\n",
+                "    </style>\n",
+                "</head>\n",
+                "<body>\n",
+                "    <div class='container'>\n",
+                "        <h1>₿ Bitcoin Mining Tracker</h1>\n",
+                "        <div class='status'>\n",
+                "            <h2>🚀 Deployment Successful!</h2>\n",
+                "            <p>The basic deployment is working. The full Node.js application is being set up...</p>\n",
+                "            <p><strong>Status:</strong> Infrastructure ✅ | Application: In Progress</p>\n",
+                "        </div>\n",
+                "        <div class='status'>\n",
+                "            <h3>What's Next:</h3>\n",
+                "            <p>The full Bitcoin Mining Tracker with real-time data, charts, and API endpoints will be available soon.</p>\n",
+                "            <p>Check back in a few minutes!</p>\n",
+                "        </div>\n",
+                "    </div>\n",
+                "</body>\n",
+                "</html>\n",
+                "EOF\n"
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bitcoin-tracker-simple"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "PublicIP": {
+      "Description": "Public IP address of the EC2 instance",
+      "Value": {
+        "Fn::GetAtt": [
+          "EC2Instance",
+          "PublicIp"
+        ]
+      }
+    },
+    "ApplicationURL": {
+      "Description": "URL of the Bitcoin Mining Tracker",
+      "Value": {
+        "Fn::Sub": "http://${EC2Instance.PublicIp}"
+      }
+    }
+  }
+}

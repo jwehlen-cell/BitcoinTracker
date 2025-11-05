@@ -1,0 +1,70 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Bitcoin Mining Tracker - AWS App Runner deployment",
+  "Resources": {
+    "AppRunnerService": {
+      "Type": "AWS::AppRunner::Service",
+      "Properties": {
+        "ServiceName": "bitcoin-tracker",
+        "SourceConfiguration": {
+          "AutoDeploymentsEnabled": false,
+          "CodeRepository": {
+            "RepositoryUrl": "https://github.com/jwehlen-cell/BitcoinTracker",
+            "SourceCodeVersion": {
+              "Type": "BRANCH",
+              "Value": "main"
+            },
+            "CodeConfiguration": {
+              "ConfigurationSource": "API",
+              "CodeConfigurationValues": {
+                "Runtime": "NODEJS_18",
+                "BuildCommand": "npm install",
+                "StartCommand": "npm start",
+                "RuntimeEnvironmentVariables": [
+                  {
+                    "Name": "NODE_ENV",
+                    "Value": "production"
+                  },
+                  {
+                    "Name": "PORT",
+                    "Value": "3000"
+                  }
+                ]
+              }
+            }
+          }
+        },
+        "InstanceConfiguration": {
+          "Cpu": "0.25 vCPU",
+          "Memory": "0.5 GB"
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bitcoin-tracker"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "ServiceUrl": {
+      "Description": "URL of the App Runner service",
+      "Value": {
+        "Fn::GetAtt": [
+          "AppRunnerService",
+          "ServiceUrl"
+        ]
+      }
+    },
+    "ServiceArn": {
+      "Description": "ARN of the App Runner service",
+      "Value": {
+        "Fn::GetAtt": [
+          "AppRunnerService",
+          "ServiceArn"
+        ]
+      }
+    }
+  }
+}

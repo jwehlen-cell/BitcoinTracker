@@ -1,0 +1,185 @@
+{
+  "AWSTemplateFormatVersion": "2010-09-09",
+  "Description": "Bitcoin Mining Tracker - EC2 deployment with better debugging",
+  "Parameters": {
+    "VpcId": {
+      "Type": "String",
+      "Default": "vpc-0514bd5157e1880ff"
+    },
+    "SubnetId": {
+      "Type": "String", 
+      "Default": "subnet-00fda05771f13b609"
+    }
+  },
+  "Resources": {
+    "SecurityGroup": {
+      "Type": "AWS::EC2::SecurityGroup",
+      "Properties": {
+        "GroupName": "bitcoin-tracker-sg-v2",
+        "GroupDescription": "Security group for Bitcoin Tracker EC2 v2",
+        "VpcId": {
+          "Ref": "VpcId"
+        },
+        "SecurityGroupIngress": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 80,
+            "ToPort": 80,
+            "CidrIp": "0.0.0.0/0"
+          },
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 3000,
+            "ToPort": 3000,
+            "CidrIp": "0.0.0.0/0"
+          }
+        ]
+      }
+    },
+    "EC2Instance": {
+      "Type": "AWS::EC2::Instance",
+      "Properties": {
+        "ImageId": "ami-0c02fb55956c7d316",
+        "InstanceType": "t3.micro",
+        "SubnetId": {
+          "Ref": "SubnetId"
+        },
+        "SecurityGroupIds": [
+          {
+            "Ref": "SecurityGroup"
+          }
+        ],
+        "UserData": {
+          "Fn::Base64": {
+            "Fn::Join": [
+              "",
+              [
+                "#!/bin/bash\n",
+                "exec > >(tee /var/log/user-data.log|logger -t user-data -s 2>/dev/console) 2>&1\n",
+                "echo 'Starting user data script'\n",
+                "yum update -y\n",
+                "echo 'Installing git'\n",
+                "yum install -y git\n",
+                "echo 'Installing Node.js'\n",
+                "curl -fsSL https://rpm.nodesource.com/setup_18.x | bash -\n",
+                "yum install -y nodejs\n",
+                "echo 'Node.js version:'\n",
+                "node --version\n",
+                "npm --version\n",
+                "echo 'Cloning repository'\n",
+                "cd /home/ec2-user\n",
+                "git clone https://github.com/jwehlen-cell/BitcoinTracker.git\n",
+                "cd BitcoinTracker\n",
+                "echo 'Installing npm dependencies'\n",
+                "npm install\n",
+                "echo 'Creating systemd service'\n",
+                "cat > /etc/systemd/system/bitcoin-tracker.service << 'EOF'\n",
+                "[Unit]\n",
+                "Description=Bitcoin Mining Tracker\n",
+                "After=network.target\n",
+                "\n",
+                "[Service]\n",
+                "Type=simple\n",
+                "User=ec2-user\n",
+                "WorkingDirectory=/home/ec2-user/BitcoinTracker\n",
+                "ExecStart=/usr/bin/node server.js\n",
+                "Restart=always\n",
+                "Environment=NODE_ENV=production\n",
+                "Environment=PORT=3000\n",
+                "\n",
+                "[Install]\n",
+                "WantedBy=multi-user.target\n",
+                "EOF\n",
+                "systemctl daemon-reload\n",
+                "systemctl enable bitcoin-tracker\n",
+                "systemctl start bitcoin-tracker\n",
+                "echo 'Installing and configuring nginx'\n",
+                "yum install -y nginx\n",
+                "cat > /etc/nginx/nginx.conf << 'EOF'\n",
+                "user nginx;\n",
+                "worker_processes auto;\n",
+                "error_log /var/log/nginx/error.log;\n",
+                "pid /run/nginx.pid;\n",
+                "\n",
+                "events {\n",
+                "    worker_connections 1024;\n",
+                "}\n",
+                "\n",
+                "http {\n",
+                "    log_format main '$remote_addr - $remote_user [$time_local] \"$request\" '\n",
+                "                    '$status $body_bytes_sent \"$http_referer\" '\n",
+                "                    '\"$http_user_agent\" \"$http_x_forwarded_for\"';\n",
+                "\n",
+                "    access_log /var/log/nginx/access.log main;\n",
+                "\n",
+                "    sendfile on;\n",
+                "    tcp_nopush on;\n",
+                "    tcp_nodelay on;\n",
+                "    keepalive_timeout 65;\n",
+                "    types_hash_max_size 2048;\n",
+                "\n",
+                "    include /etc/nginx/mime.types;\n",
+                "    default_type application/octet-stream;\n",
+                "\n",
+                "    server {\n",
+                "        listen 80 default_server;\n",
+                "        listen [::]:80 default_server;\n",
+                "        server_name _;\n",
+                "\n",
+                "        location / {\n",
+                "            proxy_pass http://127.0.0.1:3000;\n",
+                "            proxy_http_version 1.1;\n",
+                "            proxy_set_header Upgrade $http_upgrade;\n",
+                "            proxy_set_header Connection 'upgrade';\n",
+                "            proxy_set_header Host $host;\n",
+                "            proxy_set_header X-Real-IP $remote_addr;\n",
+                "            proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n",
+                "            proxy_set_header X-Forwarded-Proto $scheme;\n",
+                "            proxy_cache_bypass $http_upgrade;\n",
+                "        }\n",
+                "    }\n",
+                "}\n",
+                "EOF\n",
+                "systemctl enable nginx\n",
+                "systemctl start nginx\n",
+                "echo 'Checking service status'\n",
+                "systemctl status bitcoin-tracker\n",
+                "systemctl status nginx\n",
+                "echo 'User data script completed'\n"
+              ]
+            ]
+          }
+        },
+        "Tags": [
+          {
+            "Key": "Name",
+            "Value": "bitcoin-tracker-v2"
+          }
+        ]
+      }
+    }
+  },
+  "Outputs": {
+    "PublicIP": {
+      "Description": "Public IP address of the EC2 instance",
+      "Value": {
+        "Fn::GetAtt": [
+          "EC2Instance",
+          "PublicIp"
+        ]
+      }
+    },
+    "ApplicationURL": {
+      "Description": "URL of the Bitcoin Mining Tracker application",
+      "Value": {
+        "Fn::Sub": "http://${EC2Instance.PublicIp}"
+      }
+    },
+    "DirectAppURL": {
+      "Description": "Direct URL to Node.js app (port 3000)",
+      "Value": {
+        "Fn::Sub": "http://${EC2Instance.PublicIp}:3000"
+      }
+    }
+  }
+}
