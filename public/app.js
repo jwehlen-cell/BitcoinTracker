@@ -10,31 +10,46 @@ class BitcoinTracker {
 
     async init() {
         try {
-            await this.loadData();
+            // Use static data immediately for this demo
+            this.loadStaticData();
             this.setupChart();
             this.startAutoRefresh();
             this.hideLoading();
         } catch (error) {
             console.error('Failed to initialize:', error);
-            // Fallback to static data if API fails
-            this.loadStaticData();
-            this.setupChart();
-            this.hideLoading();
+            this.showError('Failed to load Bitcoin data. Please refresh the page.');
         }
     }
 
     loadStaticData() {
-        // Static data as fallback
+        // Static data that matches the expected structure
         this.data = {
-            totalBitcoinMined: 19750000,
-            remainingBitcoin: 1250000,
-            dailyBitcoinMined: "900.00",
-            percentageMined: "94.05",
-            estimatedDaysUntilAllMined: 1388,
-            estimatedYearsUntilAllMined: "3.8",
-            currentBlockReward: 6.25,
-            nextHalvingBlock: 840000,
-            timestamp: new Date().toISOString()
+            summary: {
+                totalBitcoinMined: 19750000,
+                remainingBitcoin: 1250000,
+                percentageMined: 94.05,
+                estimatedDaysToCompletion: 1388
+            },
+            current: {
+                currentBlockHeight: 850000,
+                currentBlockReward: 6.25,
+                difficulty: 61000000000000,
+                networkHashRate: 500000000000000000000
+            },
+            daily: {
+                bitcoinMinedLast24h: 900,
+                blocksMinedLast24h: 144,
+                averageBlockTime: 10.0
+            },
+            remaining: {
+                estimatedCompletionDate: new Date(Date.now() + 1388 * 24 * 60 * 60 * 1000).toISOString(),
+                nextHalvingEstimate: {
+                    nextHalvingBlock: 840000,
+                    blocksUntilHalving: 20000,
+                    daysUntilHalving: 139,
+                    estimatedDate: new Date(Date.now() + 139 * 24 * 60 * 60 * 1000).toISOString()
+                }
+            }
         };
         this.updateDisplay();
     }
