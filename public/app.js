@@ -34,7 +34,8 @@ class BitcoinTracker {
                 currentBlockHeight: 850000,
                 currentBlockReward: 6.25,
                 difficulty: 61000000000000,
-                networkHashRate: 500000000000000000000
+                networkHashRate: 500000000000000000000,
+                totalBitcoinsInCirculation: 19750000
             },
             daily: {
                 bitcoinMinedLast24h: 900,
@@ -42,6 +43,8 @@ class BitcoinTracker {
                 averageBlockTime: 10.0
             },
             remaining: {
+                remainingBitcoin: 1250000,
+                percentageMined: 94.05,
                 estimatedCompletionDate: new Date(Date.now() + 1388 * 24 * 60 * 60 * 1000).toISOString(),
                 nextHalvingEstimate: {
                     nextHalvingBlock: 840000,
@@ -51,7 +54,7 @@ class BitcoinTracker {
                 }
             }
         };
-        this.updateDisplay();
+        this.updateUI(this.data);
     }
 
     async loadData() {
