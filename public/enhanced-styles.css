@@ -332,6 +332,7 @@
   display: grid;
   grid-template-columns: 1fr 1fr;
   gap: 30px;
+  max-height: 500px; /* Prevent excessive vertical growth */
 }
 
 .chart-card {
@@ -340,12 +341,22 @@
   border-radius: 16px;
   padding: 25px;
   box-shadow: var(--shadow);
+  height: 400px; /* Fixed height for consistent sizing */
+  max-height: 500px; /* Fallback maximum height */
+  overflow: hidden; /* Prevent content from overflowing */
 }
 
 .chart-card h3 {
   margin: 0 0 20px;
   color: var(--text-primary);
   font-size: 1.3rem;
+}
+
+/* Canvas specific styling */
+.chart-card canvas {
+  max-width: 100% !important;
+  max-height: 320px !important; /* Leave room for title and padding */
+  height: 320px !important; /* Fixed height for charts */
 }
 
 /* Info Grid Enhancement */
@@ -596,6 +607,16 @@
     grid-template-columns: 1fr;
   }
   
+  .chart-card {
+    height: 350px; /* Slightly smaller on mobile */
+    margin-bottom: 20px;
+  }
+  
+  .chart-card canvas {
+    max-height: 270px !important;
+    height: 270px !important;
+  }
+  
   .halving-countdown {
     flex-direction: column;
     align-items: center;
@@ -671,4 +692,313 @@
   .chart-container {
     grid-template-columns: 1fr;
   }
+}
+
+/* Satoshi Nakamoto Section */
+.satoshi-section {
+    margin: 2rem 0;
+    padding: 0;
+}
+
+.satoshi-card {
+    background: var(--card-bg);
+    border-radius: 20px;
+    padding: 2rem;
+    box-shadow: var(--shadow);
+    border: 1px solid var(--border-color);
+    position: relative;
+    overflow: hidden;
+}
+
+.satoshi-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 4px;
+    background: linear-gradient(90deg, #f7931a, #ffb347, #f7931a);
+    animation: satoshiGradient 3s ease-in-out infinite;
+}
+
+@keyframes satoshiGradient {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+}
+
+.satoshi-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.satoshi-avatar {
+    width: 60px;
+    height: 60px;
+    background: linear-gradient(135deg, #f7931a, #ffb347);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.8rem;
+    margin-right: 1rem;
+    animation: pulse 2s infinite;
+}
+
+.satoshi-info h3 {
+    margin: 0;
+    color: var(--text-primary);
+    font-size: 1.4rem;
+    font-weight: 600;
+}
+
+.satoshi-subtitle {
+    margin: 0.2rem 0 0 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    opacity: 0.8;
+}
+
+.satoshi-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.satoshi-stat {
+    background: var(--hover-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    display: flex;
+    align-items: center;
+    transition: all 0.3s ease;
+    border: 1px solid var(--border-color);
+}
+
+.satoshi-stat:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 25px rgba(0, 0, 0, 0.15);
+}
+
+.satoshi-stat .stat-icon {
+    font-size: 2rem;
+    margin-right: 1rem;
+    width: 50px;
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: linear-gradient(135deg, #f7931a, #ffb347);
+    border-radius: 12px;
+    color: white;
+}
+
+.stat-content h4 {
+    margin: 0 0 0.5rem 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.stat-value {
+    font-size: 1.8rem;
+    font-weight: 700;
+    color: var(--text-primary);
+    margin-bottom: 0.2rem;
+}
+
+.stat-unit {
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    opacity: 0.7;
+}
+
+.satoshi-details {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+    gap: 1.5rem;
+    margin-bottom: 2rem;
+}
+
+.satoshi-detail-card {
+    background: var(--hover-bg);
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid var(--border-color);
+}
+
+.satoshi-detail-card h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.satoshi-detail-card ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.satoshi-detail-card li {
+    padding: 0.5rem 0;
+    border-bottom: 1px solid var(--border-color);
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+    position: relative;
+    padding-left: 1.5rem;
+}
+
+.satoshi-detail-card li:last-child {
+    border-bottom: none;
+}
+
+.satoshi-detail-card li::before {
+    content: '•';
+    color: #f7931a;
+    font-weight: bold;
+    position: absolute;
+    left: 0;
+}
+
+.wealth-comparison {
+    display: flex;
+    flex-direction: column;
+    gap: 0.8rem;
+}
+
+.wealth-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 0.8rem;
+    background: var(--card-bg);
+    border-radius: 8px;
+    border: 1px solid var(--border-color);
+    transition: all 0.3s ease;
+}
+
+.wealth-item:hover {
+    background: var(--hover-bg);
+}
+
+.wealth-item.satoshi-wealth {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.1), rgba(255, 179, 71, 0.1));
+    border-color: #f7931a;
+}
+
+.wealth-person {
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.wealth-amount {
+    font-weight: 700;
+    color: #f7931a;
+}
+
+.loading-billionaires {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    color: var(--text-secondary);
+    font-style: italic;
+    opacity: 0.7;
+}
+
+.loading-billionaires::before {
+    content: '⟳';
+    margin-right: 0.5rem;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.satoshi-mystery {
+    background: linear-gradient(135deg, rgba(247, 147, 26, 0.05), rgba(255, 179, 71, 0.05));
+    border-radius: 15px;
+    padding: 1.5rem;
+    border: 1px solid rgba(247, 147, 26, 0.2);
+}
+
+.satoshi-mystery h4 {
+    margin: 0 0 1rem 0;
+    color: var(--text-primary);
+    font-size: 1.1rem;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.satoshi-mystery p {
+    color: var(--text-secondary);
+    line-height: 1.6;
+    margin-bottom: 1.5rem;
+    font-size: 0.95rem;
+}
+
+.mystery-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+    gap: 1rem;
+}
+
+.mystery-stat {
+    text-align: center;
+    padding: 1rem;
+    background: var(--card-bg);
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+}
+
+.mystery-label {
+    display: block;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    margin-bottom: 0.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.mystery-value {
+    display: block;
+    font-size: 1.2rem;
+    font-weight: 700;
+    color: #f7931a;
+}
+
+/* Responsive Design for Satoshi Section */
+@media (max-width: 768px) {
+    .satoshi-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .satoshi-details {
+        grid-template-columns: 1fr;
+    }
+    
+    .satoshi-header {
+        flex-direction: column;
+        text-align: center;
+    }
+    
+    .satoshi-avatar {
+        margin-right: 0;
+        margin-bottom: 1rem;
+    }
+    
+    .mystery-stats {
+        grid-template-columns: 1fr;
+    }
 }

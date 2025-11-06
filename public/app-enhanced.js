@@ -152,6 +152,164 @@ class BitcoinTracker {
         }
     }
 
+    async fetchBillionaireData() {
+        try {
+            // Check cache first (cache for 1 hour)
+            const cached = this.getCachedBillionaireData();
+            if (cached) {
+                return cached;
+            }
+
+            // Since Forbes doesn't have a public API, we'll use a combination of approaches
+            // Method 1: Try Forbes via CORS proxy (may be blocked)
+            let billionaires = await this.tryFetchForbesData();
+            
+            // Method 2: Fallback to alternative data sources
+            if (!billionaires || billionaires.length === 0) {
+                billionaires = await this.tryFetchAlternativeData();
+            }
+            
+            // Method 3: Ultimate fallback to known recent data
+            if (!billionaires || billionaires.length === 0) {
+                billionaires = this.getFallbackBillionaireData();
+            }
+
+            // Cache the results
+            this.cacheBillionaireData(billionaires);
+            return billionaires;
+        } catch (error) {
+            console.error('Error fetching billionaire data:', error);
+            return this.getFallbackBillionaireData();
+        }
+    }
+
+    async tryFetchForbesData() {
+        try {
+            // Try to fetch Forbes data via CORS proxy
+            const proxyUrl = 'https://api.allorigins.win/get?url=';
+            const forbesUrl = encodeURIComponent('https://www.forbes.com/real-time-billionaires/');
+            
+            const response = await fetch(`${proxyUrl}${forbesUrl}`);
+            const data = await response.json();
+            
+            if (data.contents) {
+                return this.parseForbesData(data.contents);
+            }
+            return null;
+        } catch (error) {
+            console.log('Forbes direct fetch failed, trying alternatives...');
+            return null;
+        }
+    }
+
+    async tryFetchAlternativeData() {
+        try {
+            // Alternative: Use a financial data API that might have billionaire info
+            // For now, we'll return null and use fallback
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    parseForbesData(html) {
+        try {
+            // Create a temporary DOM to parse the HTML
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Look for billionaire data in the HTML structure
+            // This is fragile and may break if Forbes changes their structure
+            const billionaires = [];
+            
+            // Try to find table rows or list items with billionaire data
+            const rows = doc.querySelectorAll('tr, .billionaire-item, [data-testid="billionaire"]');
+            
+            rows.forEach((row, index) => {
+                if (index >= 10) return; // Only get top 10
+                
+                const nameEl = row.querySelector('[data-testid="name"], .name, td:first-child');
+                const wealthEl = row.querySelector('[data-testid="wealth"], .wealth, .net-worth');
+                
+                if (nameEl && wealthEl) {
+                    const name = nameEl.textContent.trim();
+                    const wealthText = wealthEl.textContent.trim();
+                    const wealth = this.parseWealthString(wealthText);
+                    
+                    if (name && wealth > 0) {
+                        billionaires.push({ name, wealth, rank: index + 1 });
+                    }
+                }
+            });
+            
+            return billionaires.length > 0 ? billionaires : null;
+        } catch (error) {
+            console.error('Error parsing Forbes data:', error);
+            return null;
+        }
+    }
+
+    parseWealthString(wealthText) {
+        // Parse wealth strings like "$500.6B", "$306.7B", etc.
+        const match = wealthText.match(/\$?([\d.]+)([BMK])?/);
+        if (!match) return 0;
+        
+        const number = parseFloat(match[1]);
+        const unit = match[2];
+        
+        switch (unit) {
+            case 'B': return number * 1000000000;
+            case 'M': return number * 1000000;
+            case 'K': return number * 1000;
+            default: return number;
+        }
+    }
+
+    getFallbackBillionaireData() {
+        // Recent Forbes data as of November 2025 (fallback)
+        return [
+            { name: 'Elon Musk', wealth: 500600000000, rank: 1 },
+            { name: 'Larry Ellison', wealth: 306700000000, rank: 2 },
+            { name: 'Jeff Bezos', wealth: 259600000000, rank: 3 },
+            { name: 'Larry Page', wealth: 234400000000, rank: 4 },
+            { name: 'Mark Zuckerberg', wealth: 218200000000, rank: 5 },
+            { name: 'Sergey Brin', wealth: 217400000000, rank: 6 },
+            { name: 'Bernard Arnault', wealth: 181600000000, rank: 7 },
+            { name: 'Jensen Huang', wealth: 169400000000, rank: 8 },
+            { name: 'Steve Ballmer', wealth: 153200000000, rank: 9 },
+            { name: 'Michael Dell', wealth: 149600000000, rank: 10 }
+        ];
+    }
+
+    getCachedBillionaireData() {
+        try {
+            const cached = localStorage.getItem('billionaireData');
+            if (cached) {
+                const data = JSON.parse(cached);
+                const now = Date.now();
+                // Cache for 1 hour
+                if (now - data.timestamp < 3600000) {
+                    return data.billionaires;
+                }
+            }
+            return null;
+        } catch (error) {
+            return null;
+        }
+    }
+
+    cacheBillionaireData(billionaires) {
+        try {
+            const data = {
+                billionaires,
+                timestamp: Date.now()
+            };
+            localStorage.setItem('billionaireData', JSON.stringify(data));
+        } catch (error) {
+            console.error('Error caching billionaire data:', error);
+        }
+    }
+
     getCurrentBlockReward(blockHeight) {
         const halvings = Math.floor(blockHeight / 210000);
         return 50 / Math.pow(2, halvings);
@@ -231,6 +389,9 @@ class BitcoinTracker {
             
             this.updateElement('marketCap', this.formatCurrency(data.price.marketCap, data.price.currency, true));
             this.updateElement('volume24h', this.formatCurrency(data.price.volume24h, data.price.currency, true));
+            
+            // Update Satoshi Nakamoto net worth
+            this.updateSatoshiNetWorth(data.price.current, data.price.currency);
         }
 
         // Update main statistics
@@ -283,6 +444,101 @@ class BitcoinTracker {
             element.classList.add('animate-fade-in');
             setTimeout(() => element.classList.remove('animate-fade-in'), 600);
         }
+    }
+
+    async updateSatoshiNetWorth(bitcoinPrice, currency) {
+        const satoshiBitcoin = 1000000; // Estimated 1 million Bitcoin
+        const netWorth = satoshiBitcoin * bitcoinPrice;
+        
+        // Update net worth display
+        this.updateElement('satoshiNetWorth', this.formatCurrency(netWorth, currency, true));
+        this.updateElement('satoshiCurrency', currency);
+        
+        // Get current billionaire data
+        const billionaires = await this.fetchBillionaireData();
+        
+        // Update wealth comparison section
+        this.updateWealthComparison(billionaires, netWorth, currency);
+        
+        // Calculate dynamic ranking based on real billionaire data
+        const ranking = this.calculateSatoshiRanking(billionaires, netWorth);
+        this.updateElement('satoshiRanking', ranking);
+        
+        // Update years silent calculation
+        const lastActivity = new Date('2011-04-23');
+        const now = new Date();
+        const yearsSilent = Math.floor((now - lastActivity) / (365.25 * 24 * 60 * 60 * 1000));
+        this.updateElement('yearsSilent', `${yearsSilent}+`);
+    }
+
+    updateWealthComparison(billionaires, satoshiNetWorth, currency) {
+        const container = document.getElementById('wealthComparison');
+        if (!container) return;
+
+        // Create list of all billionaires including Satoshi
+        const allBillionaires = [...billionaires];
+        
+        // Add Satoshi to the list
+        const satoshiEntry = {
+            name: 'Satoshi Nakamoto',
+            wealth: satoshiNetWorth,
+            rank: 0,
+            isSatoshi: true
+        };
+        
+        allBillionaires.push(satoshiEntry);
+        
+        // Sort by wealth descending
+        allBillionaires.sort((a, b) => b.wealth - a.wealth);
+        
+        // Update ranks
+        allBillionaires.forEach((person, index) => {
+            person.rank = index + 1;
+        });
+        
+        // Show top 6 (including Satoshi if in top 6, otherwise top 5 + Satoshi)
+        let displayList = allBillionaires.slice(0, 6);
+        
+        // If Satoshi isn't in top 6, replace the 6th with Satoshi
+        const satoshiInTop6 = displayList.find(p => p.isSatoshi);
+        if (!satoshiInTop6) {
+            displayList[5] = satoshiEntry;
+        }
+        
+        // Generate HTML
+        const html = displayList.map(person => {
+            const isHighlighted = person.isSatoshi;
+            const formattedWealth = this.formatCurrency(person.wealth, currency, true);
+            
+            return `
+                <div class="wealth-item ${isHighlighted ? 'satoshi-wealth' : ''}" ${isHighlighted ? 'id="satoshiWealthItem"' : ''}>
+                    <span class="wealth-person">${person.name}</span>
+                    <span class="wealth-amount" ${isHighlighted ? 'id="satoshiWealthComparison"' : ''}>${formattedWealth}</span>
+                </div>
+            `;
+        }).join('');
+        
+        container.innerHTML = html;
+    }
+
+    calculateSatoshiRanking(billionaires, satoshiNetWorth) {
+        let rank = 1;
+        for (const billionaire of billionaires) {
+            if (billionaire.wealth > satoshiNetWorth) {
+                rank++;
+            } else {
+                break;
+            }
+        }
+        
+        // Format ranking
+        if (rank === 1) return '1st';
+        if (rank === 2) return '2nd';
+        if (rank === 3) return '3rd';
+        if (rank <= 10) return `${rank}th`;
+        if (rank <= 20) return `~${rank}th`;
+        if (rank <= 50) return `~${Math.ceil(rank / 5) * 5}th`;
+        return `~${Math.ceil(rank / 10) * 10}th`;
     }
 
     setupCharts() {
