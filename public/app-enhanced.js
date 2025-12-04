@@ -317,7 +317,7 @@ class BitcoinTracker {
 
     calculateDailyMining() {
         const dailyBlocks = 144;
-        const currentReward = 6.25;
+        const currentReward = 3.125; // Updated after April 2024 halving
         return dailyBlocks * currentReward;
     }
 
@@ -767,40 +767,49 @@ class BitcoinTracker {
     loadStaticData() {
         this.data = {
             summary: {
-                totalBitcoinMined: 19750000,
-                remainingBitcoin: 1250000,
-                percentageMined: 94.05,
-                estimatedDaysToCompletion: 1388
+                totalBitcoinMined: 19957621,
+                remainingBitcoin: 1042379,
+                percentageMined: 95.03,
+                estimatedDaysToCompletion: 23200
             },
             current: {
-                currentBlockHeight: 850000,
-                currentBlockReward: 6.25,
-                difficulty: 61000000000000,
-                networkHashRate: 500000000000000000000,
-                totalBitcoinsInCirculation: 19750000
+                currentBlockHeight: 926444,
+                currentBlockReward: 3.125,
+                difficulty: 102289407543323.8,
+                networkHashRate: 750000000000000000000,
+                totalBitcoinsInCirculation: 19957621
             },
             daily: {
-                bitcoinMinedLast24h: 900,
+                bitcoinMinedLast24h: 450,
                 blocksMinedLast24h: 144,
                 averageBlockTime: 10.0
             },
             remaining: {
-                remainingBitcoin: 1250000,
-                percentageMined: 94.05,
-                estimatedCompletionDate: new Date(Date.now() + 1388 * 24 * 60 * 60 * 1000).toISOString(),
+                remainingBitcoin: 1042379,
+                percentageMined: 95.03,
+                estimatedCompletionDate: new Date(Date.now() + 23200 * 24 * 60 * 60 * 1000).toISOString(),
                 nextHalvingEstimate: {
-                    nextHalvingBlock: 840000,
-                    blocksUntilHalving: 20000,
-                    daysUntilHalving: 139,
-                    estimatedDate: new Date(Date.now() + 139 * 24 * 60 * 60 * 1000).toISOString()
+                    nextHalvingBlock: 1050000,
+                    blocksUntilHalving: 123556,
+                    daysUntilHalving: 858,
+                    estimatedDate: new Date(Date.now() + 858 * 24 * 60 * 60 * 1000).toISOString()
                 }
             },
             price: {
-                current: 67000,
-                change24h: 2.5,
-                marketCap: 1300000000000,
-                volume24h: 25000000000,
+                current: 92025,
+                change24h: -1.13,
+                marketCap: 1832054587561,
+                volume24h: 45000000000,
                 currency: this.selectedCurrency
+            },
+            mempool: {
+                pendingTransactions: 15000,
+                mempoolSize: 50 * 1024 * 1024,
+                fees: {
+                    fastest: 25,
+                    halfHour: 18,
+                    hour: 12
+                }
             }
         };
         

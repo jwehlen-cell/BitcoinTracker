@@ -11,7 +11,7 @@ class BitcoinDataService {
     this.BLOCKS_PER_DAY_AVERAGE = 144; // Approximately 1 block every 10 minutes
     
     // Current block reward (changes every 4 years due to halving)
-    this.currentBlockReward = 6.25; // As of 2024, will be 3.125 after next halving
+    this.currentBlockReward = 3.125; // As of April 2024 (4th halving)
   }
 
   /**
