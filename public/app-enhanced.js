@@ -266,18 +266,18 @@ class BitcoinTracker {
     }
 
     getFallbackBillionaireData() {
-        // Recent Forbes data as of November 2025 (fallback)
+        // Recent Forbes data as of December 2024 (fallback)
         return [
-            { name: 'Elon Musk', wealth: 500600000000, rank: 1 },
-            { name: 'Larry Ellison', wealth: 306700000000, rank: 2 },
-            { name: 'Jeff Bezos', wealth: 259600000000, rank: 3 },
-            { name: 'Larry Page', wealth: 234400000000, rank: 4 },
-            { name: 'Mark Zuckerberg', wealth: 218200000000, rank: 5 },
-            { name: 'Sergey Brin', wealth: 217400000000, rank: 6 },
-            { name: 'Bernard Arnault', wealth: 181600000000, rank: 7 },
-            { name: 'Jensen Huang', wealth: 169400000000, rank: 8 },
-            { name: 'Steve Ballmer', wealth: 153200000000, rank: 9 },
-            { name: 'Michael Dell', wealth: 149600000000, rank: 10 }
+            { name: 'Elon Musk', wealth: 439000000000, rank: 1 },
+            { name: 'Jeff Bezos', wealth: 243000000000, rank: 2 },
+            { name: 'Mark Zuckerberg', wealth: 224000000000, rank: 3 },
+            { name: 'Larry Ellison', wealth: 196000000000, rank: 4 },
+            { name: 'Bernard Arnault', wealth: 181000000000, rank: 5 },
+            { name: 'Bill Gates', wealth: 165000000000, rank: 6 },
+            { name: 'Larry Page', wealth: 158000000000, rank: 7 },
+            { name: 'Sergey Brin', wealth: 149000000000, rank: 8 },
+            { name: 'Warren Buffett', wealth: 143000000000, rank: 9 },
+            { name: 'Steve Ballmer', wealth: 145000000000, rank: 10 }
         ];
     }
 
