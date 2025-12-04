@@ -95,6 +95,18 @@
   font-size: 1.1rem;
 }
 
+.logo-section .last-updated-header {
+  margin: 8px 0 0;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+  font-style: italic;
+}
+
+.logo-section .last-updated-header span {
+  color: var(--bitcoin-orange);
+  font-weight: 500;
+}
+
 .controls {
   display: flex;
   gap: 12px;

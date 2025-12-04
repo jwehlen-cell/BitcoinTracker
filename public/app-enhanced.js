@@ -435,6 +435,7 @@ class BitcoinTracker {
         }
 
         this.updateElement('lastUpdated', this.formatTime(new Date()));
+        this.updateElement('lastUpdatedHeader', this.formatDateTime(new Date()));
     }
 
     updateElement(id, value) {
@@ -759,6 +760,16 @@ class BitcoinTracker {
 
     formatTime(date) {
         return date.toLocaleTimeString('en-US', {
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    }
+
+    formatDateTime(date) {
+        return date.toLocaleString('en-US', {
+            month: 'short',
+            day: 'numeric',
+            year: 'numeric',
             hour: '2-digit',
             minute: '2-digit'
         });
